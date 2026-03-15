@@ -47,12 +47,14 @@ export class PingController {
         // Log to InfluxDB if enabled in write mode
         if (config.influxdb.enabled && config.influxdb.mode === 'write' && this._app.database) {
           const playerCount = result.resp?.players.online ?? null
+          const latency = result.resp?.latency ?? null
           this._app.database.insertPing(
             serverReg.data.ip,
             serverReg.data.name,
             serverReg.data.type,
             timestamp,
-            playerCount
+            playerCount,
+            latency
           )
         }
 

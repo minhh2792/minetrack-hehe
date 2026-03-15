@@ -24,6 +24,7 @@ export interface PingResult {
   players: { online: number }
   version?: number
   favicon?: string
+  latency?: number
 }
 
 export function ping(
@@ -38,6 +39,7 @@ export function ping(
     case 'PC': {
       serverRegistration.dnsResolver.resolve((host, resolvedPort, remainingTimeout) => {
         const server = new MinecraftServer(host, resolvedPort || 25565)
+        const pingStart = Date.now()
         server.ping(remainingTimeout, protocolId, (err: Error | null, res: any) => {
           if (err) {
             callback(err)
@@ -46,7 +48,8 @@ export function ping(
               players: {
                 online: capPlayerCount(ip, parseInt(res.players?.online ?? 0, 10))
               },
-              version: parseInt(res.version?.protocol ?? 0, 10)
+              version: parseInt(res.version?.protocol ?? 0, 10),
+              latency: Date.now() - pingStart
             }
             if (res.favicon?.startsWith('data:image/')) {
               result.favicon = res.favicon
@@ -59,6 +62,7 @@ export function ping(
     }
 
     case 'PE': {
+      const pingStart = Date.now()
       minecraftBedrockPing(ip, port || 19132, (err: Error | null, res: any) => {
         if (err) {
           callback(err)
@@ -66,7 +70,8 @@ export function ping(
           callback(null, {
             players: {
               online: capPlayerCount(ip, parseInt(res.currentPlayers ?? 0, 10))
-            }
+            },
+            latency: Date.now() - pingStart
           })
         }
       }, timeout)

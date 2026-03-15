@@ -7,14 +7,14 @@ COPY package.json ./
 COPY frontend/package.json frontend/
 
 # Install all dependencies
-RUN cd /app && npm install
-RUN cd /app/frontend && npm install
+RUN cd /app && bun install
+RUN cd /app/frontend && bun install
 
 # Copy source files
 COPY . .
 
 # Build frontend
-RUN cd frontend && npm run build
+RUN cd frontend && bun run build
 
 # Production image
 FROM oven/bun:1.3-slim

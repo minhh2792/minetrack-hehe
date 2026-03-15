@@ -42,7 +42,8 @@ async function serveStaticFile(filepath: string): Promise<Response | null> {
 
 export class WebServer {
   private readonly _app: App
-  private _elysia!: Elysia
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _elysia!: any
   private _connectedClients = 0
 
   constructor(app: App) {
@@ -52,8 +53,8 @@ export class WebServer {
   setup(): void {
     this._elysia = new Elysia()
       // Serve hashed favicons
-      .get('/hashedfavicon_:hash.png', ({ params }: { params: { hash: string } }) => {
-        const hash = params.hash
+      .get('/hashedfavicon_:hash.png', (ctx: any) => {
+        const hash = ctx.params.hash as string
         for (const serverReg of this._app.serverRegistrations) {
           if (serverReg.faviconHash === hash && serverReg.lastFavicon) {
             const imageData = serverReg.lastFavicon.split(',')[1]

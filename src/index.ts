@@ -1,4 +1,3 @@
-import './env'
 import { logger } from './logger'
 import { App } from './app'
 

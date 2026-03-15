@@ -1,16 +1,21 @@
-# npm
+# npm / bun
 node_modules/
 
 # minetrack
 minetrack.log
+.env
 
-# minetrack/sqlite3
+# build artifacts
+dist/
+frontend/dist/
+.parcel-cache/
+
+# influxdb / sqlite
 database.sql
 database.sql-journal
 
 # macOS
 .DS_Store
 
-# parcel
-dist/
-.parcel-cache/
+# bun
+bun.lockb

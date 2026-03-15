@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #212021;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  @media (prefers-color-scheme: light) {
+    body {
+      background-color: #f5f5f5;
+      color: #000;
+    }
+  }
+}
+
+/* icomoon icon font */
+@font-face {
+  font-family: 'icomoon';
+  src: url('/fonts/icomoon.woff') format('woff'),
+       url('/fonts/icomoon.ttf') format('truetype'),
+       url('/fonts/icomoon.svg#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+/* uPlot reset */
+.uplot canvas {
+  display: block;
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2a292a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a494a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a696a;
+}

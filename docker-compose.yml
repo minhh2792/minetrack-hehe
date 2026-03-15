@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   minetrack:
@@ -9,4 +9,33 @@ services:
       - 1.1.1.1
     ports:
       - "80:8080"
+    env_file:
+      - .env
     restart: always
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: minetrack-influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_ADMIN_USER:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:?Please set INFLUXDB_ADMIN_PASSWORD in .env}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-minetrack}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-minetrack}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:?Please set INFLUXDB_TOKEN in .env}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+volumes:
+  influxdb-data:

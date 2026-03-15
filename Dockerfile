@@ -1,32 +1,46 @@
-FROM node:16
+FROM oven/bun:1.3 AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json ./
+COPY frontend/package.json frontend/
+
+# Install all dependencies
+RUN cd /app && bun install
+RUN cd /app/frontend && bun install
+
+# Copy source files
+COPY . .
+
+# Build frontend
+RUN cd frontend && bun run build
+
+# Production image
+FROM oven/bun:1.3-slim
 
 ARG TINI_VER="v0.19.0"
-
-# install tini
 ADD https://github.com/krallin/tini/releases/download/$TINI_VER/tini /sbin/tini
 RUN chmod +x /sbin/tini
 
-# install sqlite3
-RUN apt-get update                                                   \
- && apt-get install    --quiet --yes --no-install-recommends sqlite3 \
- && apt-get clean      --quiet --yes                                 \
- && apt-get autoremove --quiet --yes                                 \
- && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# copy minetrack files
-WORKDIR /usr/src/minetrack
-COPY . .
+# Copy built artifacts and backend source
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/frontend/dist ./frontend/dist
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/servers.json ./
+COPY --from=builder /app/minecraft_versions.json ./
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/tsconfig.json ./
 
-# build minetrack
-RUN npm install --build-from-source \
- && npm run build
-
-# run as non root
+# Run as non-root
 RUN addgroup --gid 10043 --system minetrack \
- && adduser  --uid 10042 --system --ingroup minetrack --no-create-home --gecos "" minetrack \
- && chown -R minetrack:minetrack /usr/src/minetrack
+ && adduser --uid 10042 --system --ingroup minetrack --no-create-home --gecos "" minetrack \
+ && chown -R minetrack:minetrack /app
 USER minetrack
 
 EXPOSE 8080
 
-ENTRYPOINT ["/sbin/tini", "--", "node", "main.js"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["bun", "run", "src/index.ts"]
